@@ -2,10 +2,6 @@ package edu.stanford.smi.protegex.chatPlugin;
 
 import java.util.Collection;
 
-import javax.swing.JList;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
-
 import edu.stanford.smi.protege.model.Project;
 import edu.stanford.smi.protege.resource.Icons;
 import edu.stanford.smi.protege.util.Log;
@@ -28,28 +24,7 @@ public class ChatTab extends AbstractTabWidget {
 			return;
 		}
 	
-		chatComponent = new ChatComponent(getKnowledgeBase());
-		
-		JList chatList = chatComponent.getChatList();
-		chatList.getModel().addListDataListener(new ListDataListener() {
-
-			public void contentsChanged(ListDataEvent e) {
-				
-				
-			}
-
-			public void intervalAdded(ListDataEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void intervalRemoved(ListDataEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-		
+		chatComponent = new ChatComponent(getKnowledgeBase());		
 		add(chatComponent);
 	}
 	
