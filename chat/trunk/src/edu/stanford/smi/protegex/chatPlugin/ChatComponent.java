@@ -1,6 +1,8 @@
 package edu.stanford.smi.protegex.chatPlugin;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -9,9 +11,11 @@ import java.util.Date;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
@@ -21,6 +25,8 @@ import edu.stanford.smi.protege.event.ClsListener;
 import edu.stanford.smi.protege.model.Cls;
 import edu.stanford.smi.protege.model.Instance;
 import edu.stanford.smi.protege.model.KnowledgeBase;
+import edu.stanford.smi.protege.resource.Icons;
+import edu.stanford.smi.protege.resource.ResourceKey;
 import edu.stanford.smi.protege.ui.FrameRenderer;
 import edu.stanford.smi.protege.util.ComponentUtilities;
 import edu.stanford.smi.protege.util.LabeledComponent;
@@ -39,7 +45,8 @@ public class ChatComponent extends JPanel{
 	private JList chatList;
 	
 	private ClsListener clsListener;
-	
+	private JTabbedPane tabbedContainer;
+		
 	
 	public ChatComponent(KnowledgeBase kb) {
 		this.kb = kb;
@@ -60,7 +67,8 @@ public class ChatComponent extends JPanel{
 			@Override
 			public void directInstanceAdded(ClsEvent event) {
 				Instance messageInstance = event.getInstance();				
-				displayChatMessage(messageInstance);			
+				displayChatMessage(messageInstance);
+				changeTabTitleDisplay(true);				
 			}
 		};
 		
@@ -69,12 +77,41 @@ public class ChatComponent extends JPanel{
 		}
 	}
 
+	public void changeTabTitleDisplay(boolean isNewChatLineAvailabe) {		
+		if (tabbedContainer == null) {
+			//hack
+			tabbedContainer = getContainerComponent();
+			if (tabbedContainer == null) {
+				return;
+			}
+		}
+		
+		try {
+			JComponent parent = (JComponent) this.getParent();
+			int index = tabbedContainer.indexOfComponent(parent);
+			
+			if (isNewChatLineAvailabe) {
+				tabbedContainer.setForegroundAt(index, Color.RED);			
+				tabbedContainer.setIconAt(index, Icons.getIcon(new ResourceKey("warning")));
+			} else {
+				tabbedContainer.setForegroundAt(index, Color.BLACK);			
+				tabbedContainer.setIconAt(index, ChatIcons.getSmileyIcon());				
+			}
+		} catch (Exception e) {
+			//do nothing
+		}
+		
+	}
+
 	protected void buildGUI(){
 		setLayout(new BorderLayout());
 		
 		chatList = new JList();
-		chatList.setCellRenderer(new FrameRenderer());		
-		chatInputField = new JTextField();		
+		chatList.setCellRenderer(new FrameRenderer());
+			
+		chatInputField = new JTextField();
+		tabbedContainer = getContainerComponent();
+		
 		LabeledComponent labelComponent = new LabeledComponent("Chat", new JScrollPane(chatList));
 		
 		JButton sendButton = new JButton("Send");
@@ -109,6 +146,7 @@ public class ChatComponent extends JPanel{
 		if (message != null || message.length() > 0) {
 			chatProjectManager.createMessageInstance(getKb().getUserName(), message, new Date());
 			chatInputField.setText("");
+			changeTabTitleDisplay(false);
 		}
 	}
 
@@ -136,6 +174,22 @@ public class ChatComponent extends JPanel{
 				
 		chatProjectManager.getChatKb(getKb()).dispose();
 		Log.getLogger().info("Disposed chat project.");
+	}
+	
+	protected JTabbedPane getContainerComponent() {
+		if (tabbedContainer != null) {
+			return tabbedContainer;
+		}
+		
+		JTabbedPane parent = null;
+		
+		try {
+			parent = (JTabbedPane) this.getParent().getParent();			
+		} catch (Exception e) {
+			// do nothing
+		}
+		
+		return parent;
 	}
 
 	public JList getChatList() {
