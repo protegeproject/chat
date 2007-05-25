@@ -55,6 +55,7 @@ public class ChatProjectManager {
 		fixBrowserSlots();
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void fixBrowserSlots() {
 		ArrayList browserSlotElems = new ArrayList();
 		browserSlotElems.add(getUserSlot());
@@ -149,14 +150,14 @@ public class ChatProjectManager {
         	return chatKb;
         }
         		
-		Log.getLogger().info("Cannot find the Chat server project " + SERVER_PROJ_NAME + ". Try to create one.");
+		//Log.getLogger().info("Cannot find the Chat server project " + SERVER_PROJ_NAME + ". Try to create one.");
 		
 		try {
 			RemoteServer server = rcfs.getRemoteServer();			
 			RemoteServerProject serverProject = server.createProject(SERVER_PROJ_NAME, rcfs.getSession(), null, false);			
 			chatProject = RemoteProjectManager.getInstance().connectToProject(rcfs.getRemoteServer(), rcfs.getSession(), SERVER_PROJ_NAME);
-			Log.getLogger().info("Created successfully chat project on server");
-		} catch (Exception e) {
+			//Log.getLogger().info("Created successfully chat project on server");
+		} catch (Throwable e) {
 			Log.getLogger().warning("Error at creating chat project on server. Project name: " + SERVER_PROJ_NAME);
 		}
 		
