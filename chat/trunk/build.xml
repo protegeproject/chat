@@ -86,8 +86,10 @@
      </javac>
      <copy todir="${classes}">
        <fileset dir="${src}">
-         <include name="*"/>
-         <exclude name="*.java"/>
+         <include name="**/*"/>
+         <exclude name="**/*.java"/>
+         <exclude name="**/MANIFEST.MF"/>
+         <exclude name="**/manifest.mf"/>
        </fileset>
      </copy>
    </target>
