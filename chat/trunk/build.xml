@@ -72,7 +72,6 @@
      </tstamp>
      <mkdir dir = "${build}"/>
      <mkdir dir = "${classes}"/>
-     <mkdir dir = "${model.classes}"/>
      <mkdir dir = "${plugins}"/>
      <mkdir dir = "${plugins}/${plugin_dist}"/>
    </target>  
