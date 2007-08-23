@@ -1,5 +1,6 @@
 package edu.stanford.smi.protegex.chatPlugin;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -14,6 +15,7 @@ import edu.stanford.smi.protege.model.framestore.FrameStoreManager;
 import edu.stanford.smi.protege.server.RemoteProjectManager;
 import edu.stanford.smi.protege.server.RemoteServer;
 import edu.stanford.smi.protege.server.RemoteServerProject;
+import edu.stanford.smi.protege.server.RemoteSession;
 import edu.stanford.smi.protege.server.framestore.RemoteClientFrameStore;
 import edu.stanford.smi.protege.util.Log;
 
@@ -140,7 +142,17 @@ public class ChatProjectManager {
 		
         FrameStoreManager fsmanager = ((DefaultKnowledgeBase) kb).getFrameStoreManager();
         RemoteClientFrameStore rcfs = (RemoteClientFrameStore) fsmanager.getFrameStoreFromClass(RemoteClientFrameStore.class);
-        Project chatProject = RemoteProjectManager.getInstance().connectToProject(rcfs.getRemoteServer(), rcfs.getSession(), SERVER_PROJ_NAME);
+        RemoteServer server = rcfs.getRemoteServer();
+        
+        RemoteSession session = rcfs.getSession();
+        try {
+            session = server.cloneSession(session);
+        } catch (RemoteException e) {
+            Log.getLogger().warning("Error at creating session clone "+ rcfs.getSession() + ". Error: " + e);
+            return null;
+        }
+        
+        Project chatProject = RemoteProjectManager.getInstance().connectToProject(server, session, SERVER_PROJ_NAME);
         
         if (chatProject != null) {
         	chatKb = chatProject.getKnowledgeBase();
@@ -149,13 +161,17 @@ public class ChatProjectManager {
         	Log.getLogger().info("Connected to server chat project on server.");
         	return chatKb;
         }
-        		
-		//Log.getLogger().info("Cannot find the Chat server project " + SERVER_PROJ_NAME + ". Try to create one.");
+
+        
 		
 		try {
-			RemoteServer server = rcfs.getRemoteServer();			
-			RemoteServerProject serverProject = server.createProject(SERVER_PROJ_NAME, rcfs.getSession(), null, false);			
-			chatProject = RemoteProjectManager.getInstance().connectToProject(rcfs.getRemoteServer(), rcfs.getSession(), SERVER_PROJ_NAME);
+			//Try to reuse the cloned session, because it was not really used before
+			//server.closeSession(session);
+			
+			session = server.cloneSession(rcfs.getSession());
+			
+			RemoteServerProject serverProject = server.createProject(SERVER_PROJ_NAME, session, null, false);		
+			chatProject = RemoteProjectManager.getInstance().connectToProject(server, session, SERVER_PROJ_NAME);
 			//Log.getLogger().info("Created successfully chat project on server");
 		} catch (Throwable e) {
 			Log.getLogger().warning("Error at creating chat project on server. Project name: " + SERVER_PROJ_NAME);
