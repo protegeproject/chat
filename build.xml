@@ -1,7 +1,8 @@
 <?xml version = "1.0" encoding = "utf-8"?>
-<project name = "Query Plugin" default = "dist" basedir = ".">    
+<project name = "Chat Plugin" default = "dist" basedir = ".">    
    <property environment="env"/>
    <property name="protege.home" value="${env.PROTEGE_HOME}"/>
+   <property file="local.properties"/>
 
    <property name = "src"             location = "./src"/>  
    <property name = "build"           location = "./build"/>
@@ -29,36 +30,33 @@
             if="protege.home.set">
       <echo message="Using Protege Home = ${protege.home} to find protege jars"/>
       <property name="protege.lib" value="${protege.home}/protege.jar"/>
+      <property name="standard.extensions" value="${protege.home}/plugins/edu.stanford.smi.protegex.standard_extensions/standard-extensions.jar"/>
     </target>
     
-    <target name="useLibDir" depends="checkProtegeHome" 
-            unless="protege.home.set">
-       <echo message="Using lib dir to find protege jars"/>
-      <property name="protege.lib" value="${lib}/protege.jar"/>
-    </target>
 
-
-    <target name = "checkProtegeLibs" depends="useProtegeHome, useLibDir">
+    <target name = "checkProtegeLibs" depends="useProtegeHome">
       <condition property="libs.found">
         <and>
           <available file="${protege.lib}" type = "file"/>
+          <available file="${standard.extensions}" type = "file"/>
         </and>
       </condition>
       <path id = "project.classpath">    
         <pathelement location = "${protege.lib}"/>
+        <pathelement location = "${standard.extensions}"/>
       </path>
 
     </target>
 
     <target name="checkProtegeLibsAndReport" depends="checkProtegeLibs"
             unless="libs.found">
-      <echo message="Missing protege libraries.  You can either "/>
-      <echo message="set the PROTEGE_HOME environment variable to a"/>
+      <echo message="Missing protege libraries.  You need to set "/>
+      <echo message="the PROTEGE_HOME environment variable to a"/>
       <echo message="protege installation directory where the"/>
-      <echo message="appropriate plugins have been installed or copy the"/>
-      <echo message="needed jars into the lib directory"/>
-      <echo message="The jar files in question are protege.jar, protege-owl.jar and rdf-backend.jar"/>
-      <fail message="build aborted."/>
+      <echo message="appropriate plugins have been installed."/>
+      <echo message="Alternatively set the jar libs in local.properties (protege.lib=...)"/>
+      <echo message="Use the -v option to ant to see what jars are missing."/>
+      <fail message = "missing protege libraries"/>
     </target>
       
    <!-- 
@@ -107,6 +105,8 @@
    </target>
 
    <target name = "dist" depends = "jar">
+     <copy file="plugin.properties"
+           todir="${plugins}/${plugin_dist}"/>
      <zip basedir = "${plugins}"
           includes = "${plugin_dist}/**"
           destfile = "${build}/${pluginName}.zip"/>
