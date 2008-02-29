@@ -44,6 +44,7 @@
 		<javac srcdir = "${build.src}" destdir = "${build.dest}" deprecation = "on" debug = "off" optimize = "on" includeAntRuntime = "no">
 			<classpath>
 				<pathelement path = "${protege.jar}"/>
+				<pathelement path = "${standard-extensions.jar}"/>
 			</classpath>
 		</javac>
 	</target>
