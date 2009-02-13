@@ -141,7 +141,7 @@ public class ChatProjectManager {
 		}
 		
         FrameStoreManager fsmanager = ((DefaultKnowledgeBase) kb).getFrameStoreManager();
-        RemoteClientFrameStore rcfs = (RemoteClientFrameStore) fsmanager.getFrameStoreFromClass(RemoteClientFrameStore.class);
+        RemoteClientFrameStore rcfs = fsmanager.getFrameStoreFromClass(RemoteClientFrameStore.class);
         RemoteServer server = rcfs.getRemoteServer();
         
         RemoteSession session = rcfs.getSession();
@@ -160,16 +160,12 @@ public class ChatProjectManager {
         	
         	Log.getLogger().info("Connected to server chat project on server.");
         	return chatKb;
-        }
-
-        
+        }        
 		
 		try {
 			//Try to reuse the cloned session, because it was not really used before
-			//server.closeSession(session);
-			
-			session = server.cloneSession(rcfs.getSession());
-			
+			server.closeSession(session);			
+			session = server.cloneSession(rcfs.getSession());			
 			RemoteServerProject serverProject = server.createProject(SERVER_PROJ_NAME, session, null, false);		
 			chatProject = RemoteProjectManager.getInstance().connectToProject(server, session, SERVER_PROJ_NAME);
 			//Log.getLogger().info("Created successfully chat project on server");
