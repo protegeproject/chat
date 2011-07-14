@@ -46,7 +46,9 @@ import edu.stanford.smi.protegex.widget.editorpane.EditorPaneLinkDetector;
 
 public class ChatComponent extends JPanel {
 
-	private static final int DELAY_MSEC = 2000;
+	private static final long serialVersionUID = 3110180686500742836L;
+
+    private static final int DELAY_MSEC = 2000;
 
 	private KnowledgeBase kb;
 	private ClsListener clsListener;
