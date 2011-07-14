@@ -12,7 +12,8 @@ import edu.stanford.smi.protege.widget.AbstractTabWidget;
  *
  */
 public class ChatTab extends AbstractTabWidget {
-	private ChatComponent chatComponent;
+	private static final long serialVersionUID = -8927822269539845837L;
+    private ChatComponent chatComponent;
 	
 	
 	public void initialize() {
