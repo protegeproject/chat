@@ -1,0 +1,75 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<project name = "chat" default = "init" basedir = ".">
+
+	<property name = "project.name" value = "chat"/>
+	<property name = "build.dir" value = "./build"/>
+	<property name = "build.src" value = "${build.dir}/src"/>
+	<property name = "build.dest" value = "${build.dir}/classes"/>
+	<property name = "dist.dir" value = "./dist"/>
+	<property name = "packages" value = "edu.*"/>
+
+	<property file = "../global.properties"/>
+
+	<target name = "init">
+		<tstamp/>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- PREPARE-SRC -->
+	<!-- =================================================================== -->
+	<target name = "prepare-src" depends = "init">
+		<mkdir dir = "${build.src}"/>
+		<mkdir dir = "${build.dest}"/>
+		<mkdir dir = "${dist.dir}"/>
+
+		<!-- get source code from subversion repository -->
+		<exec executable = "cmd.exe" dir = "${batch.files}" os = "${os}">
+			<arg line = "/c checkout ${svn.core.url}/${project.name}/trunk ../${project.name} --non-recursive"/>
+		</exec>
+		<exec executable = "cmd.exe" dir = "${batch.files}" os = "${os}">
+			<arg line = "/c checkout ${svn.core.url}/${project.name}/trunk/src ../${project.name}/build/src"/>
+		</exec>
+
+		<!-- add license text to top of source files -->
+		<exec executable = "cmd.exe" dir = "${batch.files}" os = "${os}">
+			<arg line = "/c merge_license_with_source ../${project.name}/build/src"/>
+		</exec>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- COMPILE -->
+	<!-- Compile the source directory. -->
+	<!-- =================================================================== -->
+	<target name = "compile" depends = "prepare-src">
+		<javac srcdir = "${build.src}" destdir = "${build.dest}" deprecation = "on" debug = "off" optimize = "on" includeAntRuntime = "no">
+			<classpath>
+				<pathelement path = "${protege.jar}"/>
+				<pathelement path = "${standard-extensions.jar}"/>
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- JAR -->
+	<!-- Create the class package. -->
+	<!-- =================================================================== -->
+	<target name = "jar" depends = "compile">
+		<copy todir = "${build.dest}/edu/stanford/smi/protegex/chatPlugin/images">
+			<fileset dir = "${build.src}/edu/stanford/smi/protegex/chatPlugin/images"/>
+		</copy>
+		<jar jarfile = "${dist.dir}/${project.name}.jar" basedir = "${build.dest}" manifest = "${build.src}/META-INF/MANIFEST.MF"/>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- CLEAN -->
+	<!-- =================================================================== -->
+	<target name = "clean" depends = "init">
+		<delete dir = "${build.dir}"/>
+		<delete dir = "${dist.dir}"/>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- ALL -->
+	<!-- =================================================================== -->
+	<target name = "all" depends = "jar"/>
+</project>
